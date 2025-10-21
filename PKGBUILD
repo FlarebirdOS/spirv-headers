@@ -1,6 +1,6 @@
 pkgname=spirv-headers
-pkgver=1.4.321.0+54ae32b
-pkgrel=2
+pkgver=1.4.328.1
+pkgrel=3
 pkgdesc="SPIR-V Headers"
 arch=('x86_64')
 url="https://www.khronos.org/registry/spir-v/"
@@ -8,21 +8,14 @@ license=('MIT')
 groups=('vulkan-devel')
 makedepends=(
     'cmake'
+    'git'
     'ninja'
 )
-source=(https://github.com/KhronosGroup/SPIRV-Headers/archive/vulkan-sdk-${pkgver%+*}/SPIRV-Headers-vulkan-sdk-${pkgver%+*}.tar.gz
-    https://github.com/KhronosGroup/SPIRV-Headers/compare/2a611a970fdbc41ac2e3e328802aed9985352dca...54ae32bce772b29a253b18583b86ab813ed1887c.patch)
-sha256sums=(5bbea925663d4cd2bab23efad53874f2718248a73dcaf9dd21dff8cb48e602fc
-    f1d26ed3177c56d81245104e1eb000409e80604eaa8db9be5980ce58807795f0)
-
-prepare() {
-    cd SPIRV-Headers-vulkan-sdk-${pkgver%+*}
-
-    patch -p1 -i ${srcdir}/2a611a970fdbc41ac2e3e328802aed9985352dca...54ae32bce772b29a253b18583b86ab813ed1887c.patch
-}
+source=(git+ssh://git@github.com/KhronosGroup/SPIRV-Headers#tag=vulkan-sdk-${pkgver})
+sha256sums=(8d4d0e7c1e60914372fb7dae6e491f346af481f73901fd4b0970be7f7ef73b81)
 
 build() {
-    cd SPIRV-Headers-vulkan-sdk-${pkgver%+*}
+    cd SPIRV-Headers
 
     local cmake_args=(
         -B flarebird-build
@@ -30,6 +23,7 @@ build() {
         -D CMAKE_BUILD_TYPE=Release
         -D CMAKE_INSTALL_PREFIX=/usr
         -D CMAKE_INSTALL_LIBDIR=lib64
+        -D CMAKE_INSTALL_SYSCONFDIR=/etc
         -D CMAKE_SKIP_INSTALL_RPATH=ON
     )
 
@@ -39,7 +33,7 @@ build() {
 }
 
 package() {
-    cd SPIRV-Headers-vulkan-sdk-${pkgver%+*}
+    cd SPIRV-Headers
 
     DESTDIR=${pkgdir} ninja -C flarebird-build install
 }
